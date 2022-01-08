@@ -84,11 +84,28 @@
         struct Node* rightChild;
     };
 
-    struct Node* root = NULL;
+    struct symbol_table_node {
+        // F: function, B: bool, I: integer
+        char type;   
+        char* id;
+        int value; 
+        // also have a global variable to count now scope
+        int scope;
+        struct Node* fun;
+    };
+
+    struct Node* head = NULL;
+    struct symbol_table_node symbol_table[40];
+    int param_stack[20];
+    int scope_count = 0, symbol_table_count = 0, param_stack_count = 0;
+    int depth = 0;
     // declare function here 
     struct Node* create_node(struct Node* left, struct Node* right, char type);
+    void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun);
+    int get_symbol_table_index(char* id);
+    void print_ast(struct Node* root);
 
-#line 92 "lisp.tab.c"
+#line 109 "lisp.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -162,13 +179,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 23 "lisp.y"
+#line 40 "lisp.y"
 
     int ival;
     char* word;
     struct Node* node_info;
 
-#line 172 "lisp.tab.c"
+#line 189 "lisp.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -545,11 +562,11 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    40,    40,    43,    44,    47,    48,    49,    52,    53,
-      57,    61,    65,    66,    67,    68,    69,    70,    73,    74,
-      78,    79,    80,    81,    82,    83,    84,    85,    89,    90,
-      91,    94,    97,   103,   107,   112,   115,   118,   119,   122,
-     123,   126,   129,   135,   141,   144,   147
+       0,    57,    57,    60,    61,    64,    65,    66,    69,    70,
+      74,    78,    82,    83,    84,    85,    86,    87,    90,    91,
+      95,    96,    97,    98,    99,   100,   101,   102,   106,   107,
+     108,   111,   114,   120,   124,   129,   132,   135,   136,   139,
+     140,   143,   146,   152,   158,   161,   164
 };
 #endif
 
@@ -1407,296 +1424,296 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 40 "lisp.y"
-               { root = (yyvsp[0].node_info); }
-#line 1413 "lisp.tab.c"
+#line 57 "lisp.y"
+               { head = (yyvsp[0].node_info); }
+#line 1430 "lisp.tab.c"
     break;
 
   case 3:
-#line 43 "lisp.y"
+#line 60 "lisp.y"
                  { (yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'T'); }
-#line 1419 "lisp.tab.c"
+#line 1436 "lisp.tab.c"
     break;
 
   case 4:
-#line 44 "lisp.y"
+#line 61 "lisp.y"
                  { (yyval.node_info) = create_node((yyvsp[0].node_info), NULL, 'T'); }
-#line 1425 "lisp.tab.c"
+#line 1442 "lisp.tab.c"
     break;
 
   case 5:
-#line 47 "lisp.y"
+#line 64 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1431 "lisp.tab.c"
+#line 1448 "lisp.tab.c"
     break;
 
   case 6:
-#line 48 "lisp.y"
+#line 65 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1437 "lisp.tab.c"
+#line 1454 "lisp.tab.c"
     break;
 
   case 7:
-#line 49 "lisp.y"
+#line 66 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1443 "lisp.tab.c"
+#line 1460 "lisp.tab.c"
     break;
 
   case 8:
-#line 52 "lisp.y"
+#line 69 "lisp.y"
                                   { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, 'P');}
-#line 1449 "lisp.tab.c"
+#line 1466 "lisp.tab.c"
     break;
 
   case 9:
-#line 53 "lisp.y"
+#line 70 "lisp.y"
                                   { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, 'p');}
-#line 1455 "lisp.tab.c"
+#line 1472 "lisp.tab.c"
     break;
 
   case 10:
-#line 57 "lisp.y"
+#line 74 "lisp.y"
                     { 
                         (yyval.node_info) = create_node(NULL, NULL, 'B');
                         (yyval.node_info)->value = (yyvsp[0].ival);    
                     }
-#line 1464 "lisp.tab.c"
+#line 1481 "lisp.tab.c"
     break;
 
   case 11:
-#line 61 "lisp.y"
+#line 78 "lisp.y"
                     {
                         (yyval.node_info) = create_node(NULL, NULL, 'I');
                         (yyval.node_info)->value = (yyvsp[0].ival);
                     }
-#line 1473 "lisp.tab.c"
+#line 1490 "lisp.tab.c"
     break;
 
   case 12:
-#line 65 "lisp.y"
+#line 82 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info); /*type = V*/}
-#line 1479 "lisp.tab.c"
+#line 1496 "lisp.tab.c"
     break;
 
   case 13:
-#line 66 "lisp.y"
-                    { (yyval.node_info) = (yyvsp[0].node_info); /*type = O*/}
-#line 1485 "lisp.tab.c"
+#line 83 "lisp.y"
+                    { (yyval.node_info) = (yyvsp[0].node_info);}
+#line 1502 "lisp.tab.c"
     break;
 
   case 14:
-#line 67 "lisp.y"
-                    { (yyval.node_info) = (yyvsp[0].node_info); /*type = O*/}
-#line 1491 "lisp.tab.c"
+#line 84 "lisp.y"
+                    { (yyval.node_info) = (yyvsp[0].node_info);}
+#line 1508 "lisp.tab.c"
     break;
 
   case 15:
-#line 68 "lisp.y"
+#line 85 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info); /*if not define or call, do nothing*/}
-#line 1497 "lisp.tab.c"
+#line 1514 "lisp.tab.c"
     break;
 
   case 16:
-#line 69 "lisp.y"
-                    { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1503 "lisp.tab.c"
+#line 86 "lisp.y"
+                    { (yyval.node_info) = (yyvsp[0].node_info);}
+#line 1520 "lisp.tab.c"
     break;
 
   case 17:
-#line 70 "lisp.y"
-                    { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1509 "lisp.tab.c"
+#line 87 "lisp.y"
+                    { (yyval.node_info) = (yyvsp[0].node_info);}
+#line 1526 "lisp.tab.c"
     break;
 
   case 18:
-#line 73 "lisp.y"
+#line 90 "lisp.y"
                     { (yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'E'); }
-#line 1515 "lisp.tab.c"
+#line 1532 "lisp.tab.c"
     break;
 
   case 19:
-#line 74 "lisp.y"
+#line 91 "lisp.y"
                     {(yyval.node_info) = create_node((yyvsp[0].node_info), NULL, 'E'); }
-#line 1521 "lisp.tab.c"
+#line 1538 "lisp.tab.c"
     break;
 
   case 20:
-#line 78 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "+"; }
-#line 1527 "lisp.tab.c"
+#line 95 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '+');}
+#line 1544 "lisp.tab.c"
     break;
 
   case 21:
-#line 79 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "-"; }
-#line 1533 "lisp.tab.c"
+#line 96 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '-'); }
+#line 1550 "lisp.tab.c"
     break;
 
   case 22:
-#line 80 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "*"; }
-#line 1539 "lisp.tab.c"
+#line 97 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '*'); }
+#line 1556 "lisp.tab.c"
     break;
 
   case 23:
-#line 81 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "/"; }
-#line 1545 "lisp.tab.c"
+#line 98 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '/'); }
+#line 1562 "lisp.tab.c"
     break;
 
   case 24:
-#line 82 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "%"; }
-#line 1551 "lisp.tab.c"
+#line 99 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '%'); }
+#line 1568 "lisp.tab.c"
     break;
 
   case 25:
-#line 83 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = ">"; }
-#line 1557 "lisp.tab.c"
+#line 100 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '>'); }
+#line 1574 "lisp.tab.c"
     break;
 
   case 26:
-#line 84 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "<"; }
-#line 1563 "lisp.tab.c"
+#line 101 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '<'); }
+#line 1580 "lisp.tab.c"
     break;
 
   case 27:
-#line 85 "lisp.y"
-                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "="; }
-#line 1569 "lisp.tab.c"
+#line 102 "lisp.y"
+                                { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '='); }
+#line 1586 "lisp.tab.c"
     break;
 
   case 28:
-#line 89 "lisp.y"
-                                    { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "&"; }
-#line 1575 "lisp.tab.c"
+#line 106 "lisp.y"
+                                    { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '&'); }
+#line 1592 "lisp.tab.c"
     break;
 
   case 29:
-#line 90 "lisp.y"
-                                    { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'O'); (yyval.node_info)->id = "|"; }
-#line 1581 "lisp.tab.c"
+#line 107 "lisp.y"
+                                    { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '|'); }
+#line 1598 "lisp.tab.c"
     break;
 
   case 30:
-#line 91 "lisp.y"
-                                    { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, 'O'); (yyval.node_info)->id = "^";}
-#line 1587 "lisp.tab.c"
+#line 108 "lisp.y"
+                                    { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, '^');}
+#line 1604 "lisp.tab.c"
     break;
 
   case 31:
-#line 94 "lisp.y"
+#line 111 "lisp.y"
                                       { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'D'); /*check right child's type*/}
-#line 1593 "lisp.tab.c"
+#line 1610 "lisp.tab.c"
     break;
 
   case 32:
-#line 97 "lisp.y"
+#line 114 "lisp.y"
                 {
                     (yyval.node_info) = create_node(NULL, NULL, 'V');
                     (yyval.node_info)->id = (yyvsp[0].word);
                 }
-#line 1602 "lisp.tab.c"
+#line 1619 "lisp.tab.c"
     break;
 
   case 33:
-#line 103 "lisp.y"
+#line 120 "lisp.y"
                                                   { (yyval.node_info) = create_node((yyvsp[-3].node_info), (yyvsp[-1].node_info), 'F');}
-#line 1608 "lisp.tab.c"
+#line 1625 "lisp.tab.c"
     break;
 
   case 34:
-#line 107 "lisp.y"
+#line 124 "lisp.y"
                     {
                         struct Node* tmp = create_node(NULL, NULL, 'V');
                         tmp->id = (yyvsp[-1].word);
                         (yyval.node_info) = create_node(tmp, (yyvsp[0].node_info), 'S');
                     }
-#line 1618 "lisp.tab.c"
+#line 1635 "lisp.tab.c"
     break;
 
   case 35:
-#line 112 "lisp.y"
+#line 129 "lisp.y"
                     { (yyval.node_info) = NULL; }
-#line 1624 "lisp.tab.c"
+#line 1641 "lisp.tab.c"
     break;
 
   case 36:
-#line 115 "lisp.y"
+#line 132 "lisp.y"
               {(yyval.node_info) = (yyvsp[0].node_info);}
-#line 1630 "lisp.tab.c"
+#line 1647 "lisp.tab.c"
     break;
 
   case 37:
-#line 118 "lisp.y"
+#line 135 "lisp.y"
                                  {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[-2].node_info), 'C');}
-#line 1636 "lisp.tab.c"
+#line 1653 "lisp.tab.c"
     break;
 
   case 38:
-#line 119 "lisp.y"
+#line 136 "lisp.y"
                                  {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[-2].node_info), 'C');}
-#line 1642 "lisp.tab.c"
+#line 1659 "lisp.tab.c"
     break;
 
   case 39:
-#line 122 "lisp.y"
+#line 139 "lisp.y"
                      {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'A');}
-#line 1648 "lisp.tab.c"
+#line 1665 "lisp.tab.c"
     break;
 
   case 40:
-#line 123 "lisp.y"
+#line 140 "lisp.y"
                      {(yyval.node_info) = NULL;}
-#line 1654 "lisp.tab.c"
+#line 1671 "lisp.tab.c"
     break;
 
   case 41:
-#line 126 "lisp.y"
+#line 143 "lisp.y"
            {(yyval.node_info) = (yyvsp[0].node_info);}
-#line 1660 "lisp.tab.c"
+#line 1677 "lisp.tab.c"
     break;
 
   case 42:
-#line 129 "lisp.y"
+#line 146 "lisp.y"
                 {
                     (yyval.node_info) = create_node(NULL, NULL, 'V');
                     (yyval.node_info)->id = (yyvsp[0].word);
                 }
-#line 1669 "lisp.tab.c"
+#line 1686 "lisp.tab.c"
     break;
 
   case 43:
-#line 135 "lisp.y"
+#line 152 "lisp.y"
                                                { 
                                                     struct Node* tmp = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'X');
                                                     (yyval.node_info) = create_node((yyvsp[-3].node_info), tmp, 'G');
                                                 }
-#line 1678 "lisp.tab.c"
+#line 1695 "lisp.tab.c"
     break;
 
   case 44:
-#line 141 "lisp.y"
+#line 158 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1684 "lisp.tab.c"
+#line 1701 "lisp.tab.c"
     break;
 
   case 45:
-#line 144 "lisp.y"
+#line 161 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1690 "lisp.tab.c"
+#line 1707 "lisp.tab.c"
     break;
 
   case 46:
-#line 147 "lisp.y"
+#line 164 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1696 "lisp.tab.c"
+#line 1713 "lisp.tab.c"
     break;
 
 
-#line 1700 "lisp.tab.c"
+#line 1717 "lisp.tab.c"
 
       default: break;
     }
@@ -1928,10 +1945,18 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 151 "lisp.y"
+#line 168 "lisp.y"
+
+
+
 
 int main(void) {
     yyparse();
+    // print_ast(head);
+    Interpret_expression(head);
+    /* for (int i = 0; i < symbol_table_count; i++) {
+        printf("symbol_tabel: %s\n", symbol_table[i].id);
+    } */
     return 0;
 }
 
@@ -1948,3 +1973,239 @@ struct Node* create_node(struct Node* left, struct Node* right, char type) {
     tmp->rightChild = right;
     return tmp;
 }
+
+void print_ast(struct Node* root) {
+    if (root != NULL) {
+        depth += 1;
+        print_ast(root -> leftChild);
+        print_ast(root -> rightChild);
+        depth -= 1;
+        printf("%d %c\n", depth, root->type);
+    }
+}
+
+int Interpret_expression(struct Node* root) {
+    if (root == NULL) {
+        return 0;
+    } else if (root -> type == 'I') {
+        return root -> value;
+    } else if (root -> type == 'B') {
+        return root -> value;
+    } else if (root -> type == 'V') {
+        // return value, also change this node's type
+        int index = get_symbol_table_index(root -> id);
+        // printf("want to access: %s\n", root->id);
+        // printf("index: %d\n", index);
+        if (index != -1) {
+            if (symbol_table[index].type != 'f') {
+                return symbol_table[index].value;
+            } else {
+                printf("want to return function\n");
+            }
+        } else {
+            printf("variable not exist\n");
+            return 66666;
+        }
+    } else if (root -> type == 'E') {
+        printf("call type E\n");
+        return 0;
+        // exps for num_ops and bool_ops
+    } else if (root -> type == 'P') {
+        int tmp_value = Interpret_expression(root -> leftChild);
+        printf("%d\n", tmp_value);
+        return 0;
+    } else if (root -> type == 'p') {
+        int tmp_value = Interpret_expression(root -> leftChild);
+        if (tmp_value == 1) {
+            printf("#t\n");
+        } else {
+            printf("#f\n");
+        }
+        return 0;
+    } else if (root -> type == 'T') {
+        Interpret_expression(root -> leftChild);
+        Interpret_expression(root -> rightChild);
+        return 0;
+    } else if (root -> type == 'D') {
+        // printf("define\n");
+        symbol_table[symbol_table_count].id = root -> leftChild -> id;
+        // printf("%s\n", symbol_table[symbol_table_count].id);
+        symbol_table[symbol_table_count].scope = scope_count;
+        if (root -> rightChild -> type == 'F') {
+            symbol_table[symbol_table_count].type = 'F';
+            symbol_table[symbol_table_count].fun = root -> rightChild;
+            symbol_table[symbol_table_count].value = 0;
+        } else {
+            // don't care about type now, if rightChild type == bool or type == O and 
+            symbol_table[symbol_table_count].type = 'I';
+            symbol_table[symbol_table_count].value = Interpret_expression(root -> rightChild);
+            // printf("%d\n", symbol_table[symbol_table_count].value);
+            symbol_table[symbol_table_count].fun = NULL;
+        }
+        symbol_table_count += 1;
+    } else if (root -> type == '+') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '+') {
+            root -> rightChild -> type = '+';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected plus\n");
+        }
+        return tmp_1 + tmp_2;
+    } else if (root -> type == '-') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 - tmp_2;
+    } else if (root -> type == '*') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 1;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '*') {
+            root -> rightChild -> type = '*';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected mul\n");
+        }
+        return tmp_1 * tmp_2;
+    } else if (root -> type == '/') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 / tmp_2;
+    } else if (root -> type == '%') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 % tmp_2;
+    } else if (root -> type == '>') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 > tmp_2;
+    } else if (root -> type == '<') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 < tmp_2;
+    } else if (root -> type == '=') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '=') {
+            root -> rightChild -> type = '=';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected equal\n");
+        }
+        return tmp_1 == tmp_2;
+    } else if (root -> type == '&') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '&') {
+            root -> rightChild -> type = '&';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected and\n");
+        }
+        return tmp_1 && tmp_2;
+    } else if (root -> type == '|') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '|') {
+            root -> rightChild -> type = '|';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected or\n");
+        }
+        return tmp_1 || tmp_2;
+    } else if (root -> type == '^') {
+        int value = Interpret_expression(root -> leftChild);
+        // printf("original: %d\n", value);
+        if (value == 1) {
+            return 0;
+        } else if (value == 0) {
+            return 1;
+        } else {
+            yyerror("Type error!");
+            return 0;
+        }
+    } else if (root -> type == 'S') {
+        // when function is called 
+        insert_symbol_table('I', root -> leftChild -> id, param_stack[param_stack_count - 1], scope_count, NULL);
+        param_stack_count -= 1;
+        Interpret_expression(root -> rightChild);
+        return 0;
+    } else if (root -> type == 'F') {
+        // link param
+        // printf("called\n");
+        Interpret_expression(root -> leftChild);
+        return Interpret_expression(root -> rightChild);
+    } else if (root -> type == 'C') {
+        // push parameter to stack
+        Interpret_expression(root -> leftChild);
+        if (root -> rightChild -> type == 'V') {
+            int index = get_symbol_table_index(root -> rightChild -> id);
+            // printf("function index: %d\n", index);
+            root -> rightChild = symbol_table[index].fun;
+        }
+        scope_count += 1;
+        int tmp_1 = Interpret_expression(root -> rightChild);
+        scope_count -= 1;
+        return tmp_1;
+    } else if (root -> type == 'A') {
+        // push parameters to stack
+        Interpret_expression(root -> rightChild);
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        param_stack[param_stack_count] = tmp_1;
+        param_stack_count += 1;
+        return 0;
+    } else if (root -> type == 'G') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        root -> rightChild -> value = tmp_1;
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_2;
+    } else if (root -> type == 'X') {
+        int tmp = 0;
+        if (root -> value == 1) {
+            tmp = Interpret_expression(root -> leftChild);
+        } else if (root -> value == 0) {
+            tmp = Interpret_expression(root -> rightChild);
+        }
+        return tmp;
+    } else {
+        // the type should not exist 
+        yyerror("unexpected type");
+    }
+}
+
+
+// search symbol table to access variable
+int get_symbol_table_index(char* tmp_id) {
+    for (int index = 0; index < symbol_table_count; index++) {
+        // printf("%s %s\n", symbol_table[index].id, tmp_id);
+        // printf("%d %d\n", symbol_table[index].scope, scope_count);
+        // printf("%d %d\n", strcmp(symbol_table[index].id, tmp_id) == 0, symbol_table[index].scope == scope_count);
+
+        if ((strcmp(symbol_table[index].id, tmp_id) == 0) && (symbol_table[index].scope == scope_count)) {
+            // printf("return: %d\n", index);
+            return index;
+        }
+    }
+    // -1 means variable not exist
+    return -1;
+}
+
+void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun) {
+    symbol_table[symbol_table_count].type = type;
+    symbol_table[symbol_table_count].id = id;
+    symbol_table[symbol_table_count].value = value;
+    symbol_table[symbol_table_count].scope = scope;
+    symbol_table[symbol_table_count].fun = fun;
+    symbol_table_count += 1;
+}
+

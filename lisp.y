@@ -15,9 +15,26 @@
         struct Node* rightChild;
     };
 
-    struct Node* root = NULL;
+    struct symbol_table_node {
+        // F: function, B: bool, I: integer
+        char type;   
+        char* id;
+        int value; 
+        // also have a global variable to count now scope
+        int scope;
+        struct Node* fun;
+    };
+
+    struct Node* head = NULL;
+    struct symbol_table_node symbol_table[40];
+    int param_stack[20];
+    int scope_count = 0, symbol_table_count = 0, param_stack_count = 0;
+    int depth = 0;
     // declare function here 
     struct Node* create_node(struct Node* left, struct Node* right, char type);
+    void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun);
+    int get_symbol_table_index(char* id);
+    void print_ast(struct Node* root);
 %}
 
 %union {
@@ -37,7 +54,7 @@
 %type<node_info> if_exp test_exp then_exp else_exp
  
 %%
-program: stmts { root = $1; }
+program: stmts { head = $1; }
 ;
 
 stmts: stmt stmts{ $$ = create_node($1, $2, 'T'); }
@@ -63,11 +80,11 @@ exp: BOOLEAN        {
                         $$->value = $1;
                     }
 | variable          { $$ = $1; /*type = V*/}
-| num_op            { $$ = $1; /*type = O*/}
-| logical_op        { $$ = $1; /*type = O*/}
+| num_op            { $$ = $1;}
+| logical_op        { $$ = $1;}
 | fun_exp           { $$ = $1; /*if not define or call, do nothing*/}
-| fun_call          { $$ = $1; }
-| if_exp            { $$ = $1; }
+| fun_call          { $$ = $1;}
+| if_exp            { $$ = $1;}
 ;
 
 exps: exp exps      { $$ = create_node($1, $2, 'E'); }
@@ -75,20 +92,20 @@ exps: exp exps      { $$ = create_node($1, $2, 'E'); }
 ;
 
 
-num_op: '(' PLUS exp exps ')'   { $$ = create_node($3, $4, 'O'); $$->id = "+"; }
-| '(' MINUS exp exp ')'         { $$ = create_node($3, $4, 'O'); $$->id = "-"; }    
-| '(' MUL exp exps ')'          { $$ = create_node($3, $4, 'O'); $$->id = "*"; }
-| '(' DIV exp exp ')'           { $$ = create_node($3, $4, 'O'); $$->id = "/"; }
-| '(' MOD exp exp ')'           { $$ = create_node($3, $4, 'O'); $$->id = "%"; }
-| '(' GR exp exp ')'            { $$ = create_node($3, $4, 'O'); $$->id = ">"; }
-| '(' SM exp exp ')'            { $$ = create_node($3, $4, 'O'); $$->id = "<"; }
-| '(' EQ exp exps ')'           { $$ = create_node($3, $4, 'O'); $$->id = "="; }
+num_op: '(' PLUS exp exps ')'   { $$ = create_node($3, $4, '+');}
+| '(' MINUS exp exp ')'         { $$ = create_node($3, $4, '-'); }    
+| '(' MUL exp exps ')'          { $$ = create_node($3, $4, '*'); }
+| '(' DIV exp exp ')'           { $$ = create_node($3, $4, '/'); }
+| '(' MOD exp exp ')'           { $$ = create_node($3, $4, '%'); }
+| '(' GR exp exp ')'            { $$ = create_node($3, $4, '>'); }
+| '(' SM exp exp ')'            { $$ = create_node($3, $4, '<'); }
+| '(' EQ exp exps ')'           { $$ = create_node($3, $4, '='); }
 ;
 
 
-logical_op: '(' AND exp exps ')'    { $$ = create_node($3, $4, 'O'); $$->id = "&"; }
-| '(' OR exp exps ')'               { $$ = create_node($3, $4, 'O'); $$->id = "|"; } 
-| '(' NOT exp ')'                   { $$ = create_node($3, NULL, 'O'); $$->id = "^";}
+logical_op: '(' AND exp exps ')'    { $$ = create_node($3, $4, '&'); }
+| '(' OR exp exps ')'               { $$ = create_node($3, $4, '|'); } 
+| '(' NOT exp ')'                   { $$ = create_node($3, NULL, '^');}
 ;
 
 def_stmt: '(' DEFINE variable exp ')' { $$ = create_node($3, $4, 'D'); /*check right child's type*/}
@@ -149,8 +166,16 @@ else_exp: exp { $$ = $1; }
 
 
 %%
+
+
+
 int main(void) {
     yyparse();
+    // print_ast(head);
+    Interpret_expression(head);
+    /* for (int i = 0; i < symbol_table_count; i++) {
+        printf("symbol_tabel: %s\n", symbol_table[i].id);
+    } */
     return 0;
 }
 
@@ -167,3 +192,239 @@ struct Node* create_node(struct Node* left, struct Node* right, char type) {
     tmp->rightChild = right;
     return tmp;
 }
+
+void print_ast(struct Node* root) {
+    if (root != NULL) {
+        depth += 1;
+        print_ast(root -> leftChild);
+        print_ast(root -> rightChild);
+        depth -= 1;
+        printf("%d %c\n", depth, root->type);
+    }
+}
+
+int Interpret_expression(struct Node* root) {
+    if (root == NULL) {
+        return 0;
+    } else if (root -> type == 'I') {
+        return root -> value;
+    } else if (root -> type == 'B') {
+        return root -> value;
+    } else if (root -> type == 'V') {
+        // return value, also change this node's type
+        int index = get_symbol_table_index(root -> id);
+        // printf("want to access: %s\n", root->id);
+        // printf("index: %d\n", index);
+        if (index != -1) {
+            if (symbol_table[index].type != 'f') {
+                return symbol_table[index].value;
+            } else {
+                printf("want to return function\n");
+            }
+        } else {
+            printf("variable not exist\n");
+            return 66666;
+        }
+    } else if (root -> type == 'E') {
+        printf("call type E\n");
+        return 0;
+        // exps for num_ops and bool_ops
+    } else if (root -> type == 'P') {
+        int tmp_value = Interpret_expression(root -> leftChild);
+        printf("%d\n", tmp_value);
+        return 0;
+    } else if (root -> type == 'p') {
+        int tmp_value = Interpret_expression(root -> leftChild);
+        if (tmp_value == 1) {
+            printf("#t\n");
+        } else {
+            printf("#f\n");
+        }
+        return 0;
+    } else if (root -> type == 'T') {
+        Interpret_expression(root -> leftChild);
+        Interpret_expression(root -> rightChild);
+        return 0;
+    } else if (root -> type == 'D') {
+        // printf("define\n");
+        symbol_table[symbol_table_count].id = root -> leftChild -> id;
+        // printf("%s\n", symbol_table[symbol_table_count].id);
+        symbol_table[symbol_table_count].scope = scope_count;
+        if (root -> rightChild -> type == 'F') {
+            symbol_table[symbol_table_count].type = 'F';
+            symbol_table[symbol_table_count].fun = root -> rightChild;
+            symbol_table[symbol_table_count].value = 0;
+        } else {
+            // don't care about type now, if rightChild type == bool or type == O and 
+            symbol_table[symbol_table_count].type = 'I';
+            symbol_table[symbol_table_count].value = Interpret_expression(root -> rightChild);
+            // printf("%d\n", symbol_table[symbol_table_count].value);
+            symbol_table[symbol_table_count].fun = NULL;
+        }
+        symbol_table_count += 1;
+    } else if (root -> type == '+') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '+') {
+            root -> rightChild -> type = '+';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected plus\n");
+        }
+        return tmp_1 + tmp_2;
+    } else if (root -> type == '-') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 - tmp_2;
+    } else if (root -> type == '*') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 1;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '*') {
+            root -> rightChild -> type = '*';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected mul\n");
+        }
+        return tmp_1 * tmp_2;
+    } else if (root -> type == '/') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 / tmp_2;
+    } else if (root -> type == '%') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 % tmp_2;
+    } else if (root -> type == '>') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 > tmp_2;
+    } else if (root -> type == '<') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_1 < tmp_2;
+    } else if (root -> type == '=') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '=') {
+            root -> rightChild -> type = '=';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected equal\n");
+        }
+        return tmp_1 == tmp_2;
+    } else if (root -> type == '&') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '&') {
+            root -> rightChild -> type = '&';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected and\n");
+        }
+        return tmp_1 && tmp_2;
+    } else if (root -> type == '|') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        int tmp_2 = 0;
+        if (root -> rightChild == NULL) {
+            return tmp_1;
+        } else if (root -> rightChild -> type == 'E' || root -> rightChild -> type == '|') {
+            root -> rightChild -> type = '|';
+            tmp_2 = Interpret_expression(root -> rightChild); 
+        } else {
+            printf("unexpected or\n");
+        }
+        return tmp_1 || tmp_2;
+    } else if (root -> type == '^') {
+        int value = Interpret_expression(root -> leftChild);
+        // printf("original: %d\n", value);
+        if (value == 1) {
+            return 0;
+        } else if (value == 0) {
+            return 1;
+        } else {
+            yyerror("Type error!");
+            return 0;
+        }
+    } else if (root -> type == 'S') {
+        // when function is called 
+        insert_symbol_table('I', root -> leftChild -> id, param_stack[param_stack_count - 1], scope_count, NULL);
+        param_stack_count -= 1;
+        Interpret_expression(root -> rightChild);
+        return 0;
+    } else if (root -> type == 'F') {
+        // link param
+        // printf("called\n");
+        Interpret_expression(root -> leftChild);
+        return Interpret_expression(root -> rightChild);
+    } else if (root -> type == 'C') {
+        // push parameter to stack
+        Interpret_expression(root -> leftChild);
+        if (root -> rightChild -> type == 'V') {
+            int index = get_symbol_table_index(root -> rightChild -> id);
+            // printf("function index: %d\n", index);
+            root -> rightChild = symbol_table[index].fun;
+        }
+        scope_count += 1;
+        int tmp_1 = Interpret_expression(root -> rightChild);
+        scope_count -= 1;
+        return tmp_1;
+    } else if (root -> type == 'A') {
+        // push parameters to stack
+        Interpret_expression(root -> rightChild);
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        param_stack[param_stack_count] = tmp_1;
+        param_stack_count += 1;
+        return 0;
+    } else if (root -> type == 'G') {
+        int tmp_1 = Interpret_expression(root -> leftChild);
+        root -> rightChild -> value = tmp_1;
+        int tmp_2 = Interpret_expression(root -> rightChild);
+        return tmp_2;
+    } else if (root -> type == 'X') {
+        int tmp = 0;
+        if (root -> value == 1) {
+            tmp = Interpret_expression(root -> leftChild);
+        } else if (root -> value == 0) {
+            tmp = Interpret_expression(root -> rightChild);
+        }
+        return tmp;
+    } else {
+        // the type should not exist 
+        yyerror("unexpected type");
+    }
+}
+
+
+// search symbol table to access variable
+int get_symbol_table_index(char* tmp_id) {
+    for (int index = 0; index < symbol_table_count; index++) {
+        // printf("%s %s\n", symbol_table[index].id, tmp_id);
+        // printf("%d %d\n", symbol_table[index].scope, scope_count);
+        // printf("%d %d\n", strcmp(symbol_table[index].id, tmp_id) == 0, symbol_table[index].scope == scope_count);
+
+        if ((strcmp(symbol_table[index].id, tmp_id) == 0) && (symbol_table[index].scope == scope_count)) {
+            // printf("return: %d\n", index);
+            return index;
+        }
+    }
+    // -1 means variable not exist
+    return -1;
+}
+
+void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun) {
+    symbol_table[symbol_table_count].type = type;
+    symbol_table[symbol_table_count].id = id;
+    symbol_table[symbol_table_count].value = value;
+    symbol_table[symbol_table_count].scope = scope;
+    symbol_table[symbol_table_count].fun = fun;
+    symbol_table_count += 1;
+}
+
