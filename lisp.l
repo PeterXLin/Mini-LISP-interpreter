@@ -25,7 +25,7 @@ ID          {letter}({letter}|{digit}|"-")*
 "print-num"     {return(PRINTNUM);}
 "print-bool"    {return(PRINTBOOL);}
 "define"        {return(DEFINE);}
-"lambda"        {return(LAMBDA);}
+"fun"        {return(LAMBDA);}
 "if"            {return(IF);}
 "#t"|"#f"       {
                     if (yytext[1] == 't') {

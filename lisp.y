@@ -42,6 +42,7 @@
     void print_ast(struct Node* root);
     // travese AST tree
     int Interpret_expression(struct Node* root); 
+    void remove_symbol_table_entry(int scope);
 %}
 
 %union {
@@ -332,6 +333,10 @@ int Interpret_expression(struct Node* root) {
         } else {
             printf("unexpected and\n");
         }
+        // printf("%d\n", tmp_1);
+        // printf("%d\n", tmp_2);
+
+
         return tmp_1 && tmp_2;
     } else if (root -> type == '|') {
         int tmp_1 = Interpret_expression(root -> leftChild);
@@ -377,6 +382,8 @@ int Interpret_expression(struct Node* root) {
         }
         scope_count += 1;
         int tmp_1 = Interpret_expression(root -> rightChild);
+
+        remove_symbol_table_entry(scope_count);
         scope_count -= 1;
         return tmp_1;
     } else if (root -> type == 'A') {
@@ -405,7 +412,6 @@ int Interpret_expression(struct Node* root) {
     }
 }
 
-
 // search symbol table to access variable
 int get_symbol_table_index(char* tmp_id) {
     for (int index = 0; index < symbol_table_count; index++) {
@@ -420,6 +426,15 @@ int get_symbol_table_index(char* tmp_id) {
     }
     // -1 means variable not exist
     return -1;
+}
+
+void remove_symbol_table_entry(int scope) {
+    for (int index = 0; index < symbol_table_count; index++) {
+        if (symbol_table[index].scope == scope) {
+            // printf("symbol_table_count: %d\n", symbol_table_count);
+            symbol_table_count--;
+        }
+    }
 }
 
 void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun) {
