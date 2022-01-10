@@ -220,6 +220,7 @@ int Interpret_expression(struct Node* root) {
             if (symbol_table[index].type != 'f') {
                 return symbol_table[index].value;
             } else {
+                // use function as parameter
                 printf("want to return function\n");
             }
         } else {
@@ -233,6 +234,7 @@ int Interpret_expression(struct Node* root) {
         return 0;
         // exps for num_ops and bool_ops
     } else if (root -> type == 'P') {
+        // for type checking
         int tmp_value = Interpret_expression(root -> leftChild);
         printf("%d\n", tmp_value);
         return 0;

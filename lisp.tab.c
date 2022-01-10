@@ -95,17 +95,24 @@
     };
 
     struct Node* head = NULL;
-    struct symbol_table_node symbol_table[40];
-    int param_stack[20];
+    struct symbol_table_node symbol_table[100];
+    int param_stack[100];
     int scope_count = 0, symbol_table_count = 0, param_stack_count = 0;
+    // for debug print tree
     int depth = 0;
+    
     // declare function here 
     struct Node* create_node(struct Node* left, struct Node* right, char type);
+    // put variable to symbol table
     void insert_symbol_table(char type, char* id, int value, int scope, struct Node* fun);
+    // get the index of the variable you want
     int get_symbol_table_index(char* id);
+    // for debug
     void print_ast(struct Node* root);
+    // travese AST tree
+    int Interpret_expression(struct Node* root); 
 
-#line 109 "lisp.tab.c"
+#line 116 "lisp.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -179,13 +186,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 40 "lisp.y"
+#line 47 "lisp.y"
 
     int ival;
     char* word;
     struct Node* node_info;
 
-#line 189 "lisp.tab.c"
+#line 196 "lisp.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -562,11 +569,11 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    60,    61,    64,    65,    66,    69,    70,
-      74,    78,    82,    83,    84,    85,    86,    87,    90,    91,
-      95,    96,    97,    98,    99,   100,   101,   102,   106,   107,
-     108,   111,   114,   120,   124,   129,   132,   135,   136,   139,
-     140,   143,   146,   152,   158,   161,   164
+       0,    64,    64,    67,    68,    71,    72,    73,    76,    77,
+      80,    84,    88,    89,    90,    91,    92,    93,    96,    97,
+     100,   101,   102,   103,   104,   105,   106,   107,   110,   111,
+     112,   115,   118,   124,   128,   133,   136,   139,   140,   143,
+     144,   147,   150,   156,   162,   165,   168
 };
 #endif
 
@@ -1424,296 +1431,296 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 57 "lisp.y"
+#line 64 "lisp.y"
                { head = (yyvsp[0].node_info); }
-#line 1430 "lisp.tab.c"
+#line 1437 "lisp.tab.c"
     break;
 
   case 3:
-#line 60 "lisp.y"
+#line 67 "lisp.y"
                  { (yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'T'); }
-#line 1436 "lisp.tab.c"
+#line 1443 "lisp.tab.c"
     break;
 
   case 4:
-#line 61 "lisp.y"
+#line 68 "lisp.y"
                  { (yyval.node_info) = create_node((yyvsp[0].node_info), NULL, 'T'); }
-#line 1442 "lisp.tab.c"
+#line 1449 "lisp.tab.c"
     break;
 
   case 5:
-#line 64 "lisp.y"
+#line 71 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1448 "lisp.tab.c"
+#line 1455 "lisp.tab.c"
     break;
 
   case 6:
-#line 65 "lisp.y"
+#line 72 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1454 "lisp.tab.c"
+#line 1461 "lisp.tab.c"
     break;
 
   case 7:
-#line 66 "lisp.y"
+#line 73 "lisp.y"
                 { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1460 "lisp.tab.c"
+#line 1467 "lisp.tab.c"
     break;
 
   case 8:
-#line 69 "lisp.y"
+#line 76 "lisp.y"
                                   { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, 'P');}
-#line 1466 "lisp.tab.c"
+#line 1473 "lisp.tab.c"
     break;
 
   case 9:
-#line 70 "lisp.y"
+#line 77 "lisp.y"
                                   { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, 'p');}
-#line 1472 "lisp.tab.c"
+#line 1479 "lisp.tab.c"
     break;
 
   case 10:
-#line 74 "lisp.y"
+#line 80 "lisp.y"
                     { 
                         (yyval.node_info) = create_node(NULL, NULL, 'B');
                         (yyval.node_info)->value = (yyvsp[0].ival);    
                     }
-#line 1481 "lisp.tab.c"
+#line 1488 "lisp.tab.c"
     break;
 
   case 11:
-#line 78 "lisp.y"
+#line 84 "lisp.y"
                     {
                         (yyval.node_info) = create_node(NULL, NULL, 'I');
                         (yyval.node_info)->value = (yyvsp[0].ival);
                     }
-#line 1490 "lisp.tab.c"
+#line 1497 "lisp.tab.c"
     break;
 
   case 12:
-#line 82 "lisp.y"
+#line 88 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info); /*type = V*/}
-#line 1496 "lisp.tab.c"
+#line 1503 "lisp.tab.c"
     break;
 
   case 13:
-#line 83 "lisp.y"
+#line 89 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info);}
-#line 1502 "lisp.tab.c"
+#line 1509 "lisp.tab.c"
     break;
 
   case 14:
-#line 84 "lisp.y"
+#line 90 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info);}
-#line 1508 "lisp.tab.c"
+#line 1515 "lisp.tab.c"
     break;
 
   case 15:
-#line 85 "lisp.y"
+#line 91 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info); /*if not define or call, do nothing*/}
-#line 1514 "lisp.tab.c"
+#line 1521 "lisp.tab.c"
     break;
 
   case 16:
-#line 86 "lisp.y"
+#line 92 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info);}
-#line 1520 "lisp.tab.c"
+#line 1527 "lisp.tab.c"
     break;
 
   case 17:
-#line 87 "lisp.y"
+#line 93 "lisp.y"
                     { (yyval.node_info) = (yyvsp[0].node_info);}
-#line 1526 "lisp.tab.c"
+#line 1533 "lisp.tab.c"
     break;
 
   case 18:
-#line 90 "lisp.y"
+#line 96 "lisp.y"
                     { (yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'E'); }
-#line 1532 "lisp.tab.c"
+#line 1539 "lisp.tab.c"
     break;
 
   case 19:
-#line 91 "lisp.y"
+#line 97 "lisp.y"
                     {(yyval.node_info) = create_node((yyvsp[0].node_info), NULL, 'E'); }
-#line 1538 "lisp.tab.c"
+#line 1545 "lisp.tab.c"
     break;
 
   case 20:
-#line 95 "lisp.y"
+#line 100 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '+');}
-#line 1544 "lisp.tab.c"
+#line 1551 "lisp.tab.c"
     break;
 
   case 21:
-#line 96 "lisp.y"
+#line 101 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '-'); }
-#line 1550 "lisp.tab.c"
+#line 1557 "lisp.tab.c"
     break;
 
   case 22:
-#line 97 "lisp.y"
+#line 102 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '*'); }
-#line 1556 "lisp.tab.c"
+#line 1563 "lisp.tab.c"
     break;
 
   case 23:
-#line 98 "lisp.y"
+#line 103 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '/'); }
-#line 1562 "lisp.tab.c"
+#line 1569 "lisp.tab.c"
     break;
 
   case 24:
-#line 99 "lisp.y"
+#line 104 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '%'); }
-#line 1568 "lisp.tab.c"
+#line 1575 "lisp.tab.c"
     break;
 
   case 25:
-#line 100 "lisp.y"
+#line 105 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '>'); }
-#line 1574 "lisp.tab.c"
+#line 1581 "lisp.tab.c"
     break;
 
   case 26:
-#line 101 "lisp.y"
+#line 106 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '<'); }
-#line 1580 "lisp.tab.c"
+#line 1587 "lisp.tab.c"
     break;
 
   case 27:
-#line 102 "lisp.y"
+#line 107 "lisp.y"
                                 { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '='); }
-#line 1586 "lisp.tab.c"
+#line 1593 "lisp.tab.c"
     break;
 
   case 28:
-#line 106 "lisp.y"
+#line 110 "lisp.y"
                                     { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '&'); }
-#line 1592 "lisp.tab.c"
+#line 1599 "lisp.tab.c"
     break;
 
   case 29:
-#line 107 "lisp.y"
+#line 111 "lisp.y"
                                     { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), '|'); }
-#line 1598 "lisp.tab.c"
+#line 1605 "lisp.tab.c"
     break;
 
   case 30:
-#line 108 "lisp.y"
+#line 112 "lisp.y"
                                     { (yyval.node_info) = create_node((yyvsp[-1].node_info), NULL, '^');}
-#line 1604 "lisp.tab.c"
+#line 1611 "lisp.tab.c"
     break;
 
   case 31:
-#line 111 "lisp.y"
+#line 115 "lisp.y"
                                       { (yyval.node_info) = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'D'); /*check right child's type*/}
-#line 1610 "lisp.tab.c"
+#line 1617 "lisp.tab.c"
     break;
 
   case 32:
-#line 114 "lisp.y"
+#line 118 "lisp.y"
                 {
                     (yyval.node_info) = create_node(NULL, NULL, 'V');
                     (yyval.node_info)->id = (yyvsp[0].word);
                 }
-#line 1619 "lisp.tab.c"
+#line 1626 "lisp.tab.c"
     break;
 
   case 33:
-#line 120 "lisp.y"
+#line 124 "lisp.y"
                                                   { (yyval.node_info) = create_node((yyvsp[-3].node_info), (yyvsp[-1].node_info), 'F');}
-#line 1625 "lisp.tab.c"
+#line 1632 "lisp.tab.c"
     break;
 
   case 34:
-#line 124 "lisp.y"
+#line 128 "lisp.y"
                     {
                         struct Node* tmp = create_node(NULL, NULL, 'V');
                         tmp->id = (yyvsp[-1].word);
                         (yyval.node_info) = create_node(tmp, (yyvsp[0].node_info), 'S');
                     }
-#line 1635 "lisp.tab.c"
+#line 1642 "lisp.tab.c"
     break;
 
   case 35:
-#line 129 "lisp.y"
+#line 133 "lisp.y"
                     { (yyval.node_info) = NULL; }
-#line 1641 "lisp.tab.c"
+#line 1648 "lisp.tab.c"
     break;
 
   case 36:
-#line 132 "lisp.y"
+#line 136 "lisp.y"
               {(yyval.node_info) = (yyvsp[0].node_info);}
-#line 1647 "lisp.tab.c"
+#line 1654 "lisp.tab.c"
     break;
 
   case 37:
-#line 135 "lisp.y"
+#line 139 "lisp.y"
                                  {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[-2].node_info), 'C');}
-#line 1653 "lisp.tab.c"
+#line 1660 "lisp.tab.c"
     break;
 
   case 38:
-#line 136 "lisp.y"
+#line 140 "lisp.y"
                                  {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[-2].node_info), 'C');}
-#line 1659 "lisp.tab.c"
+#line 1666 "lisp.tab.c"
     break;
 
   case 39:
-#line 139 "lisp.y"
+#line 143 "lisp.y"
                      {(yyval.node_info) = create_node((yyvsp[-1].node_info), (yyvsp[0].node_info), 'A');}
-#line 1665 "lisp.tab.c"
+#line 1672 "lisp.tab.c"
     break;
 
   case 40:
-#line 140 "lisp.y"
+#line 144 "lisp.y"
                      {(yyval.node_info) = NULL;}
-#line 1671 "lisp.tab.c"
+#line 1678 "lisp.tab.c"
     break;
 
   case 41:
-#line 143 "lisp.y"
+#line 147 "lisp.y"
            {(yyval.node_info) = (yyvsp[0].node_info);}
-#line 1677 "lisp.tab.c"
+#line 1684 "lisp.tab.c"
     break;
 
   case 42:
-#line 146 "lisp.y"
+#line 150 "lisp.y"
                 {
                     (yyval.node_info) = create_node(NULL, NULL, 'V');
                     (yyval.node_info)->id = (yyvsp[0].word);
                 }
-#line 1686 "lisp.tab.c"
+#line 1693 "lisp.tab.c"
     break;
 
   case 43:
-#line 152 "lisp.y"
+#line 156 "lisp.y"
                                                { 
                                                     struct Node* tmp = create_node((yyvsp[-2].node_info), (yyvsp[-1].node_info), 'X');
                                                     (yyval.node_info) = create_node((yyvsp[-3].node_info), tmp, 'G');
                                                 }
-#line 1695 "lisp.tab.c"
+#line 1702 "lisp.tab.c"
     break;
 
   case 44:
-#line 158 "lisp.y"
+#line 162 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1701 "lisp.tab.c"
+#line 1708 "lisp.tab.c"
     break;
 
   case 45:
-#line 161 "lisp.y"
+#line 165 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1707 "lisp.tab.c"
+#line 1714 "lisp.tab.c"
     break;
 
   case 46:
-#line 164 "lisp.y"
+#line 168 "lisp.y"
               { (yyval.node_info) = (yyvsp[0].node_info); }
-#line 1713 "lisp.tab.c"
+#line 1720 "lisp.tab.c"
     break;
 
 
-#line 1717 "lisp.tab.c"
+#line 1724 "lisp.tab.c"
 
       default: break;
     }
@@ -1945,9 +1952,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 168 "lisp.y"
-
-
+#line 171 "lisp.y"
 
 
 int main(void) {
@@ -2003,7 +2008,8 @@ int Interpret_expression(struct Node* root) {
                 printf("want to return function\n");
             }
         } else {
-            printf("variable not exist\n");
+            yyerror("variable not exist");
+            // printf("variable not exist\n");
             return 66666;
         }
     } else if (root -> type == 'E') {
