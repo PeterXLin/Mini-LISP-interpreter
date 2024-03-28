@@ -1,4 +1,6 @@
+/* definintion section */
 %{
+    /* cause we want to use the token defined by yacc*/
     #include "lisp.tab.h"
     // void yyerror(const char *);
 %}
@@ -11,7 +13,7 @@ number      0|[1-9]{digit}*|"-"[1-9]{digit}*
 ID          {letter}({letter}|{digit}|"-")* 
 
 %% 
-"+"             {return(PLUS);}
+"+"             {return(PLUS);}   /* rule section */
 "-"             {return(MINUS);}
 "*"             {return(MUL);}
 "/"             {return(DIV);}
@@ -36,9 +38,11 @@ ID          {letter}({letter}|{digit}|"-")*
                         return(BOOLEAN);
                     }
                 }
-{number}        {yylval.ival = atoi(yytext); return(NUMBER);}
+{number}        {yylval.ival = atoi(yytext); return(NUMBER); /* set yylval.ival to pass readed input to yacc */}
 {ID}            {yylval.word = strdup(yytext); return(ID);}
-"("|")"         {return(yytext[0]);}
+"("|")"         {return(yytext[0]); /* yytext is a char pointer, which store the matched string */ }
 {separator}     {}       
 .               {}
 %%
+
+/* subrountine section */

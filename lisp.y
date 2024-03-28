@@ -48,9 +48,10 @@
 %union {
     int ival;
     char* word;
-    struct Node* node_info;
+    struct Node* node_info; // cause we want to use this to build AST (Inherited Attributes)
 }
 
+/* defined token which also used by lex */
 %token<ival> NUMBER 
 %token<ival> BOOLEAN
 %token<word> ID 
@@ -65,7 +66,7 @@
 program: stmts { head = $1; }
 ;
 
-stmts: stmt stmts{ $$ = create_node($1, $2, 'T'); }
+stmts: stmt stmts{ $$ = create_node($1, $2, 'T'); } /*$$, $1 -> Inherited Attributes, $$ represent the left side non-termininal, $1 represents first token in right side*/
 | stmt           { $$ = create_node($1, NULL, 'T'); }
 ;
 

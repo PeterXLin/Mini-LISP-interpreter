@@ -476,11 +476,12 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
 #line 1 "lisp.l"
-#line 2 "lisp.l"
+/* definintion section */
+#line 3 "lisp.l"
     #include "lisp.tab.h"
     // void yyerror(const char *);
-#line 483 "lex.yy.c"
 #line 484 "lex.yy.c"
+#line 485 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -697,9 +698,9 @@ YY_DECL
 		}
 
 	{
-#line 13 "lisp.l"
+#line 14 "lisp.l"
 
-#line 703 "lex.yy.c"
+#line 704 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -758,87 +759,87 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "lisp.l"
-{return(PLUS);}
+#line 15 "lisp.l"
+{return(PLUS);}   /* rule section */
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "lisp.l"
+#line 16 "lisp.l"
 {return(MINUS);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "lisp.l"
+#line 17 "lisp.l"
 {return(MUL);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "lisp.l"
+#line 18 "lisp.l"
 {return(DIV);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 18 "lisp.l"
+#line 19 "lisp.l"
 {return(MOD);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 19 "lisp.l"
+#line 20 "lisp.l"
 {return(GR);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 20 "lisp.l"
+#line 21 "lisp.l"
 {return(SM);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 21 "lisp.l"
+#line 22 "lisp.l"
 {return(EQ);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 22 "lisp.l"
+#line 23 "lisp.l"
 {return(AND);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 23 "lisp.l"
+#line 24 "lisp.l"
 {return(OR);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 24 "lisp.l"
+#line 25 "lisp.l"
 {return(NOT);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 25 "lisp.l"
+#line 26 "lisp.l"
 {return(PRINTNUM);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 26 "lisp.l"
+#line 27 "lisp.l"
 {return(PRINTBOOL);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 27 "lisp.l"
+#line 28 "lisp.l"
 {return(DEFINE);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 28 "lisp.l"
+#line 29 "lisp.l"
 {return(LAMBDA);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 29 "lisp.l"
+#line 30 "lisp.l"
 {return(IF);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 30 "lisp.l"
+#line 31 "lisp.l"
 {
                     if (yytext[1] == 't') {
                         yylval.ival = 1;
@@ -851,36 +852,36 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 39 "lisp.l"
-{yylval.ival = atoi(yytext); return(NUMBER);}
+#line 40 "lisp.l"
+{yylval.ival = atoi(yytext); return(NUMBER); /* set yylval.ival to pass readed input to yacc */}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 40 "lisp.l"
+#line 41 "lisp.l"
 {yylval.word = strdup(yytext); return(ID);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 41 "lisp.l"
-{return(yytext[0]);}
+#line 42 "lisp.l"
+{return(yytext[0]); /* yytext is a char pointer, which store the matched string */ }
 	YY_BREAK
 case 21:
 /* rule 21 can match eol */
 YY_RULE_SETUP
-#line 42 "lisp.l"
+#line 43 "lisp.l"
 {}       
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 43 "lisp.l"
+#line 44 "lisp.l"
 {}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 44 "lisp.l"
+#line 45 "lisp.l"
 ECHO;
 	YY_BREAK
-#line 884 "lex.yy.c"
+#line 885 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1885,5 +1886,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 44 "lisp.l"
+#line 45 "lisp.l"
 
+
+/* subrountine section */
